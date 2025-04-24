@@ -1,0 +1,4 @@
+Name: nlohmann_json
+Description: JSON for Modern C++
+Version: 3.10.4
+Cflags: -I/home/liyaobing/project/mogic-cg-libpag/third_party/json_install/include
