@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8"/>
+  <link href="https://blog.csdn.net/aningxiaoxixi/article/details/145798918" rel="canonical"/>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <meta content="webkit" name="renderer">
+   <meta content="webkit" name="force-rendering">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+    <meta content="always" name="referrer"/>
+    <meta content="no-siteapp" http-equiv="Cache-Control">
+     <link href="#" media="handheld" rel="alternate"/>
+     <meta content="pc" name="applicable-device"/>
+     <link href="https://g.csdnimg.cn/static/logo/favicon32.ico" rel="shortcut icon" type="image/x-icon"/>
+     <title>
+      移植live555 上的 rtsp_live555移植-CSDN博客
+     </title>
+     <meta content="live555移植" name="keywords"/>
+     <meta content='{"autorun":true,"install":true,"keyword":"live555移植"}' name="csdn-baidu-search"/>
+     <meta content="文章浏览阅读967次，点赞22次，收藏5次。关键点解释：关键点：四、live555自定义FramedSource实现关键逻辑：六、音视频同步策略七、完整流程整合初始化硬件模块启动RTSP服务线程主循环采集数据八、调试技巧验证视频编码分析RTSP协议海思SDK调试通过以上完整实现，您可以在hi3516平台上构建稳定的RTSP音视频服务。实际部署时需根据硬件特性调整缓冲区大小、线程优先级等参数。在 Live555 库中， 是事件循环的核心入口，负责调度和处理所有异步事件。以下是对其处理的常见事_live555移植" name="description"/>
+     <link href="https://csdnimg.cn/release/blogv2/dist/pc/css/detail_enter-af0ead44cd.min.css" rel="stylesheet" type="text/css"/>
+     <link href="https://csdnimg.cn/release/blogv2/dist/pc/themesSkin/skin-blackboard/skin-blackboard-3adcc2c475.min.css" rel="stylesheet" type="text/css"/>
+     <meta content='{"type":"0","fixModel":"1"}' name="toolbar"/>
+     <link href="https://csdnimg.cn/public/sandalstrap/1.4/css/sandalstrap.min.css" rel="stylesheet" type="text/css"/>
+     <style>
+      .MathJax, .MathJax_Message, .MathJax_Preview{
+            display: none
+        }
+     </style>
+    </meta>
+   </meta>
+  </meta>
+  <style type="text/css">
+   * { user-select: text; } pre{max-height: none!important; overflow-y: hidden;}
+  </style>
+ </head>
+ <body class="nodata" style="">
+  <link href="https://csdnimg.cn/release/blogv2/dist/pc/css/blog_code-01256533b5.min.css" rel="stylesheet"/>
+  <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/chart-3456820cac.css" rel="stylesheet">
+   <link href="https://g.csdnimg.cn/lib/swiper/6.0.4/css/swiper.css" rel="stylesheet">
+    <div class="main_father clearfix d-flex justify-content-center mainfather-concision" style="height:100%;">
+     <div class="container clearfix container-concision" id="mainBox">
+      <main>
+       <div class="blog-content-box">
+        <div class="article-header-box">
+         <div class="article-header">
+          <div class="article-title-box">
+           <h1 class="title-article" id="articleContentId">
+            移植live555 上的 rtsp
+           </h1>
+          </div>
+          <div class="article-info-box">
+           <div class="article-bar-top">
+            <img alt="" class="article-type-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/original.png"/>
+            <div class="bar-content">
+             <a class="article-vip-box" data-report-click='{"spm":"3001.10404"}' data-report-query="spm=3001.10404" data-report-view='{"spm":"3001.10404"}' href="https://mall.csdn.net/vip" target="_blank">
+              <img alt="" class="article-vip-img-new" src="https://csdnimg.cn/release/blogv2/dist/pc/img/identityVipNew.png"/>
+             </a>
+             <a class="follow-nickName" href="https://blog.csdn.net/aningxiaoxixi" rel="noopener" target="_blank" title="aningxiaoxixi">
+              aningxiaoxixi
+             </a>
+             <img alt="" class="article-time-img article-heard-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png"/>
+             <span class="time">
+              已于 2025-02-23 16:16:10 修改
+             </span>
+             <div class="read-count-box">
+              <img alt="" class="article-read-img article-heard-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png"/>
+              <span class="read-count">
+               阅读量967
+              </span>
+              <a class="un-collection" data-report-click='{"mod":"popu_823","spm":"1001.2101.3001.4232","ab":"new"}' id="blog_detail_zk_collection">
+               <img alt="" class="article-collect-img article-heard-img un-collect-status isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png" style="display:inline-block"/>
+               <img alt="" class="article-collect-img article-heard-img collect-status isactive" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png" style="display:none"/>
+               <span class="name">
+                收藏
+               </span>
+               <span class="get-collection">
+                5
+               </span>
+              </a>
+              <div class="read-count-box is-like" data-type="top">
+               <img alt="" class="article-read-img article-heard-img" id="is-like-imgactive-new" src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png" style="display:none"/>
+               <img alt="" class="article-read-img article-heard-img" id="is-like-img-new" src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png" style="display:block"/>
+               <span class="read-count" id="blog-digg-num">
+                点赞数
+                            22
+               </span>
+              </div>
+             </div>
+            </div>
+           </div>
+           <div class="blog-tags-box">
+            <div class="tags-box artic-tag-box">
+             <span class="label">
+              分类专栏：
+             </span>
+             <a class="tag-link" href="https://blog.csdn.net/aningxiaoxixi/category_9921005.html" rel="noopener" target="_blank">
+              网络
+             </a>
+             <span class="label">
+              文章标签：
+             </span>
+             <a class="tag-link" data-report-click='{"mod":"popu_626","spm":"1001.2101.3001.4223","strategy":"网络","ab":"new","extra":"{\"searchword\":\"网络\"}"}' data-report-query="spm=1001.2101.3001.4223" data-report-view='{"mod":"popu_626","spm":"1001.2101.3001.4223","strategy":"网络","ab":"new","extra":"{\"searchword\":\"网络\"}"}' href="https://so.csdn.net/so/search/s.do?q=%E7%BD%91%E7%BB%9C&amp;t=all&amp;o=vip&amp;s=&amp;l=&amp;f=&amp;viparticle=&amp;from_tracking_code=tag_word&amp;from_code=app_blog_art" rel="noopener" target="_blank">
+              网络
+             </a>
+            </div>
+           </div>
+           <div class="up-time">
+            <span>
+             于 2025-02-22 18:47:25 首次发布
+            </span>
+           </div>
+           <div class="slide-content-box">
+            <div class="article-copyright">
+             <div class="creativecommons">
+              版权声明：本文为博主原创文章，遵循
+              <a href="http://creativecommons.org/licenses/by-sa/4.0/" rel="noopener" target="_blank">
+               CC 4.0 BY-SA
+              </a>
+              版权协议，转载请附上原文出处链接和本声明。
+             </div>
+             <div class="article-source-link">
+              本文链接：
+              <a href="https://blog.csdn.net/aningxiaoxixi/article/details/145798918" target="_blank">
+               https://blog.csdn.net/aningxiaoxixi/article/details/145798918
+              </a>
+             </div>
+            </div>
+           </div>
+           <div class="operating">
+            <a class="href-article-edit slide-toggle">
+             版权
+            </a>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div id="blogHuaweiyunAdvert">
+        </div>
+        <article class="baidu_pl">
+         <div class="article_content clearfix" id="article_content">
+          <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/kdoc_html_views-1a98987dfd.css" rel="stylesheet"/>
+          <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/ck_htmledit_views-704d5b9767.css" rel="stylesheet"/>
+          <div class="markdown_views prism-atom-one-light" id="content_views">
+           <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+           </svg>
+           <h3>
+            <a id="__0">
+            </a>
+            一 代码实例
+           </h3>
+           <h4>
+            <a id="V4L2_2">
+            </a>
+            <strong>
+             一、V4L2视频采集模块（完整示例）
+            </strong>
+           </h4>
+           <pre><code class="prism language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;linux/videodev2.h&gt;</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;sys/ioctl.h&gt;</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h&gt;</span></span>
+
+<span class="token comment">// 初始化V4L2摄像头</span>
+<span class="token keyword">int</span> <span class="token function">init_v4l2_camera</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> dev_path<span class="token punctuation">,</span> <span class="token keyword">int</span> width<span class="token punctuation">,</span> <span class="token keyword">int</span> height<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    <span class="token keyword">int</span> fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>dev_path<span class="token punctuation">,</span> O_RDWR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>fd <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"Failed to open V4L2 device"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 设置视频格式（YUV422）</span>
+    <span class="token keyword">struct</span> <span class="token class-name">v4l2_format</span> fmt <span class="token operator">=</span> <span class="token punctuation">{<!-- --></span><span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    fmt<span class="token punctuation">.</span>type <span class="token operator">=</span> V4L2_BUF_TYPE_VIDEO_CAPTURE<span class="token punctuation">;</span>
+    fmt<span class="token punctuation">.</span>fmt<span class="token punctuation">.</span>pix<span class="token punctuation">.</span>width <span class="token operator">=</span> width<span class="token punctuation">;</span>
+    fmt<span class="token punctuation">.</span>fmt<span class="token punctuation">.</span>pix<span class="token punctuation">.</span>height <span class="token operator">=</span> height<span class="token punctuation">;</span>
+    fmt<span class="token punctuation">.</span>fmt<span class="token punctuation">.</span>pix<span class="token punctuation">.</span>pixelformat <span class="token operator">=</span> V4L2_PIX_FMT_YUYV<span class="token punctuation">;</span> <span class="token comment">// 海思可能要求NV12</span>
+    fmt<span class="token punctuation">.</span>fmt<span class="token punctuation">.</span>pix<span class="token punctuation">.</span>field <span class="token operator">=</span> V4L2_FIELD_NONE<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> VIDIOC_S_FMT<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fmt<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"Failed to set video format"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 申请视频缓冲区（MMAP方式）</span>
+    <span class="token keyword">struct</span> <span class="token class-name">v4l2_requestbuffers</span> req <span class="token operator">=</span> <span class="token punctuation">{<!-- --></span><span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    req<span class="token punctuation">.</span>count <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">;</span>
+    req<span class="token punctuation">.</span>type <span class="token operator">=</span> V4L2_BUF_TYPE_VIDEO_CAPTURE<span class="token punctuation">;</span>
+    req<span class="token punctuation">.</span>memory <span class="token operator">=</span> V4L2_MEMORY_MMAP<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> VIDIOC_REQBUFS<span class="token punctuation">,</span> <span class="token operator">&amp;</span>req<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"Failed to request buffers"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 映射缓冲区到用户空间</span>
+    <span class="token keyword">struct</span> <span class="token class-name">v4l2_buffer</span> buf <span class="token operator">=</span> <span class="token punctuation">{<!-- --></span><span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> req<span class="token punctuation">.</span>count<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        buf<span class="token punctuation">.</span>type <span class="token operator">=</span> V4L2_BUF_TYPE_VIDEO_CAPTURE<span class="token punctuation">;</span>
+        buf<span class="token punctuation">.</span>memory <span class="token operator">=</span> V4L2_MEMORY_MMAP<span class="token punctuation">;</span>
+        buf<span class="token punctuation">.</span>index <span class="token operator">=</span> i<span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> VIDIOC_QUERYBUF<span class="token punctuation">,</span> <span class="token operator">&amp;</span>buf<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+            <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"Failed to query buffer"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">void</span><span class="token operator">*</span> buffer <span class="token operator">=</span> <span class="token function">mmap</span><span class="token punctuation">(</span><span class="token constant">NULL</span><span class="token punctuation">,</span> buf<span class="token punctuation">.</span>length<span class="token punctuation">,</span> PROT_READ <span class="token operator">|</span> PROT_WRITE<span class="token punctuation">,</span> MAP_SHARED<span class="token punctuation">,</span> fd<span class="token punctuation">,</span> buf<span class="token punctuation">.</span>m<span class="token punctuation">.</span>offset<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// 保存buffer指针...</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 启动视频流</span>
+    <span class="token keyword">enum</span> <span class="token class-name">v4l2_buf_type</span> type <span class="token operator">=</span> V4L2_BUF_TYPE_VIDEO_CAPTURE<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> VIDIOC_STREAMON<span class="token punctuation">,</span> <span class="token operator">&amp;</span>type<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"Failed to start streaming"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> fd<span class="token punctuation">;</span> <span class="token comment">// 返回设备句柄</span>
+<span class="token punctuation">}</span>
+</code></pre>
+           <p>
+            <strong>
+             关键点解释
+            </strong>
+            ：
+           </p>
+           <ul>
+            <li>
+             海思平台可能要求输入NV12格式，需根据硬件文档调整
+             <code>
+              V4L2_PIX_FMT_*
+             </code>
+            </li>
+            <li>
+             MMAP方式减少内存拷贝，适合高帧率场景
+            </li>
+            <li>
+             需循环调用
+             <code>
+              VIDIOC_QBUF
+             </code>
+             和
+             <code>
+              VIDIOC_DQBUF
+             </code>
+             获取视频帧
+            </li>
+           </ul>
+           <hr/>
+           <h4>
+            <a id="H264_77">
+            </a>
+            <strong>
+             二、海思H.264硬件编码模块
+            </strong>
+           </h4>
+           <pre><code class="prism language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"hi_comm_venc.h"</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"mpi_venc.h"</span></span>
+
+<span class="token comment">// 初始化海思编码通道</span>
+HI_S32 <span class="token function">init_hisi_venc</span><span class="token punctuation">(</span><span class="token keyword">int</span> width<span class="token punctuation">,</span> <span class="token keyword">int</span> height<span class="token punctuation">,</span> <span class="token keyword">int</span> fps<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    HI_S32 s32Ret<span class="token punctuation">;</span>
+    VENC_CHN VencChn <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    VENC_ATTR_S stVencAttr<span class="token punctuation">;</span>
+
+    <span class="token comment">// 配置编码参数</span>
+    <span class="token function">memset</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>stVencAttr<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>VENC_ATTR_S<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    stVencAttr<span class="token punctuation">.</span>enType <span class="token operator">=</span> PT_H264<span class="token punctuation">;</span>
+    stVencAttr<span class="token punctuation">.</span>stRcAttr<span class="token punctuation">.</span>enRcMode <span class="token operator">=</span> VENC_RC_MODE_H264CBR<span class="token punctuation">;</span>
+    stVencAttr<span class="token punctuation">.</span>stRcAttr<span class="token punctuation">.</span>stH264Cbr<span class="token punctuation">.</span>u32Gop <span class="token operator">=</span> fps <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">;</span> <span class="token comment">// GOP为2秒</span>
+    stVencAttr<span class="token punctuation">.</span>stRcAttr<span class="token punctuation">.</span>stH264Cbr<span class="token punctuation">.</span>u32BitRate <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">;</span> <span class="token comment">// 2000kbps</span>
+    stVencAttr<span class="token punctuation">.</span>stVencAttr<span class="token punctuation">.</span>stAttrH264e<span class="token punctuation">.</span>u32MaxPicWidth <span class="token operator">=</span> width<span class="token punctuation">;</span>
+    stVencAttr<span class="token punctuation">.</span>stVencAttr<span class="token punctuation">.</span>stAttrH264e<span class="token punctuation">.</span>u32MaxPicHeight <span class="token operator">=</span> height<span class="token punctuation">;</span>
+    stVencAttr<span class="token punctuation">.</span>stVencAttr<span class="token punctuation">.</span>stAttrH264e<span class="token punctuation">.</span>u32PicWidth <span class="token operator">=</span> width<span class="token punctuation">;</span>
+    stVencAttr<span class="token punctuation">.</span>stVencAttr<span class="token punctuation">.</span>stAttrH264e<span class="token punctuation">.</span>u32PicHeight <span class="token operator">=</span> height<span class="token punctuation">;</span>
+
+    <span class="token comment">// 创建编码通道</span>
+    s32Ret <span class="token operator">=</span> <span class="token function">HI_MPI_VENC_CreateChn</span><span class="token punctuation">(</span>VencChn<span class="token punctuation">,</span> <span class="token operator">&amp;</span>stVencAttr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>s32Ret <span class="token operator">!=</span> HI_SUCCESS<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Create VENC channel failed: 0x%x\n"</span><span class="token punctuation">,</span> s32Ret<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> s32Ret<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 设置帧率</span>
+    VENC_PARAM_FRMRATE_PARA_S stFrmRate<span class="token punctuation">;</span>
+    stFrmRate<span class="token punctuation">.</span>stSrcFrmRate<span class="token punctuation">.</span>s32FrmRate <span class="token operator">=</span> fps <span class="token operator">*</span> <span class="token number">1000</span><span class="token punctuation">;</span> <span class="token comment">// 以毫秒为单位</span>
+    stFrmRate<span class="token punctuation">.</span>stDstFrmRate<span class="token punctuation">.</span>s32FrmRate <span class="token operator">=</span> fps <span class="token operator">*</span> <span class="token number">1000</span><span class="token punctuation">;</span>
+    <span class="token function">HI_MPI_VENC_SetFrmRate</span><span class="token punctuation">(</span>VencChn<span class="token punctuation">,</span> <span class="token operator">&amp;</span>stFrmRate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> HI_SUCCESS<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// 获取编码后的H.264流</span>
+<span class="token keyword">void</span> <span class="token function">get_h264_stream</span><span class="token punctuation">(</span>VENC_CHN VencChn<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">char</span><span class="token operator">*</span><span class="token operator">*</span> ppBuffer<span class="token punctuation">,</span> HI_U32<span class="token operator">*</span> pSize<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    VENC_STREAM_S stStream<span class="token punctuation">;</span>
+    HI_S32 s32Ret <span class="token operator">=</span> <span class="token function">HI_MPI_VENC_GetStream</span><span class="token punctuation">(</span>VencChn<span class="token punctuation">,</span> <span class="token operator">&amp;</span>stStream<span class="token punctuation">,</span> <span class="token number">2000</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 2秒超时</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>s32Ret <span class="token operator">==</span> HI_SUCCESS<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token operator">*</span>ppBuffer <span class="token operator">=</span> stStream<span class="token punctuation">.</span>pstPack<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>pu8Addr<span class="token punctuation">;</span>
+        <span class="token operator">*</span>pSize <span class="token operator">=</span> stStream<span class="token punctuation">.</span>pstPack<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>u32Len<span class="token punctuation">;</span>
+        <span class="token function">HI_MPI_VENC_ReleaseStream</span><span class="token punctuation">(</span>VencChn<span class="token punctuation">,</span> <span class="token operator">&amp;</span>stStream<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 必须释放</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+           <p>
+            <strong>
+             关键点
+            </strong>
+            ：
+           </p>
+           <ul>
+            <li>
+             使用
+             <code>
+              HI_MPI_VENC_GetStream
+             </code>
+             非阻塞方式获取码流
+            </li>
+            <li>
+             必须调用
+             <code>
+              HI_MPI_VENC_ReleaseStream
+             </code>
+             释放资源，否则会导致内存泄漏
+            </li>
+            <li>
+             海思SDK要求严格的内存对齐，需按照文档配置参数
+            </li>
+           </ul>
+           <h4>
+            <a id="ALSAAAC_135">
+            </a>
+            <strong>
+             三、ALSA音频采集与AAC编码
+            </strong>
+           </h4>
+           <pre><code class="prism language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;alsa/asoundlib.h&gt;</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;fdk-aac/aacenc_lib.h&gt;</span></span>
+
+<span class="token comment">// 初始化ALSA音频采集</span>
+<span class="token class-name">snd_pcm_t</span><span class="token operator">*</span> <span class="token function">init_alsa</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> device<span class="token punctuation">,</span> <span class="token keyword">int</span> sample_rate<span class="token punctuation">,</span> <span class="token keyword">int</span> channels<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    <span class="token class-name">snd_pcm_t</span><span class="token operator">*</span> handle<span class="token punctuation">;</span>
+    <span class="token class-name">snd_pcm_hw_params_t</span><span class="token operator">*</span> params<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">snd_pcm_open</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>handle<span class="token punctuation">,</span> device<span class="token punctuation">,</span> SND_PCM_STREAM_CAPTURE<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span> <span class="token string">"ALSA open error\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">snd_pcm_hw_params_malloc</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>params<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">snd_pcm_hw_params_any</span><span class="token punctuation">(</span>handle<span class="token punctuation">,</span> params<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 设置参数</span>
+    <span class="token function">snd_pcm_hw_params_set_access</span><span class="token punctuation">(</span>handle<span class="token punctuation">,</span> params<span class="token punctuation">,</span> SND_PCM_ACCESS_RW_INTERLEAVED<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">snd_pcm_hw_params_set_format</span><span class="token punctuation">(</span>handle<span class="token punctuation">,</span> params<span class="token punctuation">,</span> SND_PCM_FORMAT_S16_LE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">snd_pcm_hw_params_set_channels</span><span class="token punctuation">(</span>handle<span class="token punctuation">,</span> params<span class="token punctuation">,</span> channels<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">snd_pcm_hw_params_set_rate_near</span><span class="token punctuation">(</span>handle<span class="token punctuation">,</span> params<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>sample_rate<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 应用参数</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">snd_pcm_hw_params</span><span class="token punctuation">(</span>handle<span class="token punctuation">,</span> params<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span> <span class="token string">"ALSA set params failed\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">snd_pcm_close</span><span class="token punctuation">(</span>handle<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> handle<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// 初始化AAC编码器</span>
+AACENCODER<span class="token operator">*</span> <span class="token function">init_aac_encoder</span><span class="token punctuation">(</span><span class="token keyword">int</span> sample_rate<span class="token punctuation">,</span> <span class="token keyword">int</span> channels<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    AACENCODER<span class="token operator">*</span> hEncoder<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">aacEncOpen</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>hEncoder<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> channels<span class="token punctuation">)</span> <span class="token operator">!=</span> AACENC_OK<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token keyword">return</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 设置编码参数</span>
+    <span class="token function">aacEncoder_SetParam</span><span class="token punctuation">(</span>hEncoder<span class="token punctuation">,</span> AACENC_AOT<span class="token punctuation">,</span> AOT_AAC_LC<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">aacEncoder_SetParam</span><span class="token punctuation">(</span>hEncoder<span class="token punctuation">,</span> AACENC_SAMPLERATE<span class="token punctuation">,</span> sample_rate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">aacEncoder_SetParam</span><span class="token punctuation">(</span>hEncoder<span class="token punctuation">,</span> AACENC_CHANNELMODE<span class="token punctuation">,</span> MODE_2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">aacEncoder_SetParam</span><span class="token punctuation">(</span>hEncoder<span class="token punctuation">,</span> AACENC_BITRATE<span class="token punctuation">,</span> <span class="token number">64000</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 64kbps</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">aacEncEncode</span><span class="token punctuation">(</span>hEncoder<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span> <span class="token operator">!=</span> AACENC_OK<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token function">aacEncClose</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>hEncoder<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> hEncoder<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+</code></pre>
+           <h4>
+            <a id="live555FramedSource_193">
+            </a>
+            <strong>
+             四、live555自定义FramedSource实现
+            </strong>
+           </h4>
+           <pre><code class="prism language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;liveMedia.hh&gt;</span></span>
+
+<span class="token keyword">class</span> <span class="token class-name">Hi3516VideoSource</span> <span class="token operator">:</span> <span class="token base-clause"><span class="token keyword">public</span> <span class="token class-name">FramedSource</span></span> <span class="token punctuation">{<!-- --></span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token keyword">static</span> Hi3516VideoSource<span class="token operator">*</span> <span class="token function">createNew</span><span class="token punctuation">(</span>UsageEnvironment<span class="token operator">&amp;</span> env<span class="token punctuation">,</span> VENC_CHN vencChn<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token function">Hi3516VideoSource</span><span class="token punctuation">(</span>env<span class="token punctuation">,</span> vencChn<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token keyword">protected</span><span class="token operator">:</span>
+    <span class="token function">Hi3516VideoSource</span><span class="token punctuation">(</span>UsageEnvironment<span class="token operator">&amp;</span> env<span class="token punctuation">,</span> VENC_CHN vencChn<span class="token punctuation">)</span> 
+        <span class="token operator">:</span> <span class="token function">FramedSource</span><span class="token punctuation">(</span>env<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">mVencChn</span><span class="token punctuation">(</span>vencChn<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span><span class="token punctuation">}</span>
+
+    <span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">doGetNextFrame</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token comment">// 从海思编码器获取H.264数据</span>
+        <span class="token keyword">unsigned</span> <span class="token keyword">char</span><span class="token operator">*</span> pData <span class="token operator">=</span> <span class="token keyword">nullptr</span><span class="token punctuation">;</span>
+        HI_U32 dataSize <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token function">get_h264_stream</span><span class="token punctuation">(</span>mVencChn<span class="token punctuation">,</span> <span class="token operator">&amp;</span>pData<span class="token punctuation">,</span> <span class="token operator">&amp;</span>dataSize<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>dataSize <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>dataSize <span class="token operator">&gt;</span> fMaxSize<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> <span class="token comment">// 处理分包</span>
+                fNumTruncatedBytes <span class="token operator">=</span> dataSize <span class="token operator">-</span> fMaxSize<span class="token punctuation">;</span>
+                dataSize <span class="token operator">=</span> fMaxSize<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token function">memcpy</span><span class="token punctuation">(</span>fTo<span class="token punctuation">,</span> pData<span class="token punctuation">,</span> dataSize<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            fFrameSize <span class="token operator">=</span> dataSize<span class="token punctuation">;</span>
+
+            <span class="token comment">// 设置时间戳（使用系统时钟）</span>
+            <span class="token function">gettimeofday</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>fPresentationTime<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{<!-- --></span>
+            fFrameSize <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// 立即通知框架可以发送数据</span>
+        <span class="token function">afterGetting</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+    VENC_CHN mVencChn<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+           <p>
+            <strong>
+             关键逻辑
+            </strong>
+            ：
+           </p>
+           <ul>
+            <li>
+             <code>
+              doGetNextFrame()
+             </code>
+             是live555的核心回调函数，当需要发送数据时自动触发
+            </li>
+            <li>
+             时间戳必须转换为RTP时间基准（视频：90000Hz，音频：采样率）
+            </li>
+            <li>
+             若数据超过缓冲区大小，需设置
+             <code>
+              fNumTruncatedBytes
+             </code>
+            </li>
+           </ul>
+           <hr/>
+           <h4>
+            <a id="RTSP_244">
+            </a>
+            <strong>
+             五、RTSP服务端搭建
+            </strong>
+           </h4>
+           <pre><code class="prism language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"liveMedia.hh"</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"BasicUsageEnvironment.hh"</span></span>
+
+<span class="token keyword">void</span> <span class="token function">start_rtsp_server</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    <span class="token comment">//创建任务管理器环境</span>
+    TaskScheduler<span class="token operator">*</span> scheduler <span class="token operator">=</span> <span class="token class-name">BasicTaskScheduler</span><span class="token double-colon punctuation">::</span><span class="token function">createNew</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//控制台应用环境</span>
+    UsageEnvironment<span class="token operator">*</span> env <span class="token operator">=</span> <span class="token class-name">BasicUsageEnvironment</span><span class="token double-colon punctuation">::</span><span class="token function">createNew</span><span class="token punctuation">(</span><span class="token operator">*</span>scheduler<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 创建RTSP服务器（端口554需要root权限）</span>
+    RTSPServer<span class="token operator">*</span> rtspServer <span class="token operator">=</span> <span class="token class-name">RTSPServer</span><span class="token double-colon punctuation">::</span><span class="token function">createNew</span><span class="token punctuation">(</span><span class="token operator">*</span>env<span class="token punctuation">,</span> <span class="token number">554</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>rtspServer <span class="token operator">==</span> <span class="token constant">NULL</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token operator">*</span>env <span class="token operator">&lt;&lt;</span> <span class="token string">"Failed to create RTSP server: "</span> <span class="token operator">&lt;&lt;</span> env<span class="token operator">-&gt;</span><span class="token function">getResultMsg</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token string">"\n"</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 创建媒体会话（H.264 + AAC）</span>
+    ServerMediaSession<span class="token operator">*</span> sms <span class="token operator">=</span> <span class="token class-name">ServerMediaSession</span><span class="token double-colon punctuation">::</span><span class="token function">createNew</span><span class="token punctuation">(</span>
+        <span class="token operator">*</span>env<span class="token punctuation">,</span> <span class="token string">"live"</span><span class="token punctuation">,</span> <span class="token string">"Hi3516 Live Stream"</span><span class="token punctuation">,</span> <span class="token string">"Session for Hi3516"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 添加视频子会话</span>
+    sms<span class="token operator">-&gt;</span><span class="token function">addSubsession</span><span class="token punctuation">(</span><span class="token class-name">H264VideoFileServerMediaSubsession</span><span class="token double-colon punctuation">::</span><span class="token function">createNew</span><span class="token punctuation">(</span>
+        <span class="token operator">*</span>env<span class="token punctuation">,</span> <span class="token string">"dummy"</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 实际应使用自定义Source</span>
+
+    <span class="token comment">// 添加音频子会话（AAC）</span>
+    sms<span class="token operator">-&gt;</span><span class="token function">addSubsession</span><span class="token punctuation">(</span><span class="token class-name">ADTSAudioFileServerMediaSubsession</span><span class="token double-colon punctuation">::</span><span class="token function">createNew</span><span class="token punctuation">(</span>
+        <span class="token operator">*</span>env<span class="token punctuation">,</span> <span class="token string">"dummy"</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//把媒体会话添加到 RTSP服务器实例中</span>
+    <span class="token comment">//注意:Live555 的RTSPServer 在调用 addServerMediaSession() 后，自动监听客户端请求并处理流传输。所有“发布”逻辑已封装在库内部</span>
+    rtspServer<span class="token operator">-&gt;</span><span class="token function">addServerMediaSession</span><span class="token punctuation">(</span>sms<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 打印RTSP URL</span>
+    <span class="token keyword">char</span><span class="token operator">*</span> url <span class="token operator">=</span> rtspServer<span class="token operator">-&gt;</span><span class="token function">rtspURL</span><span class="token punctuation">(</span>sms<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token operator">*</span>env <span class="token operator">&lt;&lt;</span> <span class="token string">"RTSP URL: "</span> <span class="token operator">&lt;&lt;</span> url <span class="token operator">&lt;&lt;</span> <span class="token string">"\n"</span><span class="token punctuation">;</span>
+    <span class="token keyword">delete</span><span class="token punctuation">[</span><span class="token punctuation">]</span> url<span class="token punctuation">;</span>
+
+    env<span class="token operator">-&gt;</span><span class="token function">taskScheduler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">doEventLoop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 进入主循环</span>
+<span class="token punctuation">}</span>
+</code></pre>
+           <h4>
+            <a id="_289">
+            </a>
+            <strong>
+             六、音视频同步策略
+            </strong>
+           </h4>
+           <pre><code class="prism language-cpp"><span class="token comment">// 全局时间戳生成器（单位：微秒）</span>
+<span class="token keyword">uint64_t</span> <span class="token function">get_ntp_timestamp</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    <span class="token keyword">struct</span> <span class="token class-name">timeval</span> tv<span class="token punctuation">;</span>
+    <span class="token function">gettimeofday</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>tv<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token keyword">uint64_t</span><span class="token punctuation">)</span>tv<span class="token punctuation">.</span>tv_sec <span class="token operator">*</span> <span class="token number">1000000</span> <span class="token operator">+</span> tv<span class="token punctuation">.</span>tv_usec<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// 在FramedSource中设置时间戳</span>
+<span class="token keyword">void</span> <span class="token class-name">Hi3516VideoSource</span><span class="token double-colon punctuation">::</span><span class="token function">doGetNextFrame</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    <span class="token comment">// ... 获取数据 ...</span>
+    <span class="token keyword">uint64_t</span> now <span class="token operator">=</span> <span class="token function">get_ntp_timestamp</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    fPresentationTime<span class="token punctuation">.</span>tv_sec <span class="token operator">=</span> now <span class="token operator">/</span> <span class="token number">1000000</span><span class="token punctuation">;</span>
+    fPresentationTime<span class="token punctuation">.</span>tv_usec <span class="token operator">=</span> now <span class="token operator">%</span> <span class="token number">1000000</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// 音频同步需转换为采样数</span>
+<span class="token keyword">uint32_t</span> <span class="token function">audio_rtp_timestamp</span><span class="token punctuation">(</span><span class="token keyword">uint64_t</span> ntp_ts<span class="token punctuation">,</span> <span class="token keyword">int</span> sample_rate<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token keyword">uint32_t</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">(</span>ntp_ts <span class="token operator">*</span> sample_rate<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">1000000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+           <h4>
+            <a id="_314">
+            </a>
+            <strong>
+             七、完整流程整合
+            </strong>
+           </h4>
+           <ol>
+            <li>
+             <p>
+              <strong>
+               初始化硬件模块
+              </strong>
+             </p>
+             <pre><code class="prism language-c"><span class="token keyword">int</span> v4l2_fd <span class="token operator">=</span> <span class="token function">init_v4l2_camera</span><span class="token punctuation">(</span><span class="token string">"/dev/video0"</span><span class="token punctuation">,</span> <span class="token number">1280</span><span class="token punctuation">,</span> <span class="token number">720</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">init_hisi_venc</span><span class="token punctuation">(</span><span class="token number">1280</span><span class="token punctuation">,</span> <span class="token number">720</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">snd_pcm_t</span><span class="token operator">*</span> audio_handle <span class="token operator">=</span> <span class="token function">init_alsa</span><span class="token punctuation">(</span><span class="token string">"default"</span><span class="token punctuation">,</span> <span class="token number">44100</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+AACENCODER<span class="token operator">*</span> aac_enc <span class="token operator">=</span> <span class="token function">init_aac_encoder</span><span class="token punctuation">(</span><span class="token number">44100</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+            </li>
+            <li>
+             <p>
+              <strong>
+               启动RTSP服务线程
+              </strong>
+             </p>
+             <pre><code class="prism language-cpp">std<span class="token double-colon punctuation">::</span>thread <span class="token function">rtsp_thread</span><span class="token punctuation">(</span>start_rtsp_server<span class="token punctuation">)</span><span class="token punctuation">;</span>
+rtsp_thread<span class="token punctuation">.</span><span class="token function">detach</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+            </li>
+            <li>
+             <p>
+              <strong>
+               主循环采集数据
+              </strong>
+             </p>
+             <pre><code class="prism language-c"><span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    <span class="token comment">// 视频采集-&gt;编码-&gt;存入队列</span>
+    <span class="token keyword">struct</span> <span class="token class-name">v4l2_buffer</span> buf <span class="token operator">=</span> <span class="token punctuation">{<!-- --></span><span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token function">ioctl</span><span class="token punctuation">(</span>v4l2_fd<span class="token punctuation">,</span> VIDIOC_DQBUF<span class="token punctuation">,</span> <span class="token operator">&amp;</span>buf<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">HI_MPI_VENC_SendFrame</span><span class="token punctuation">(</span>vencChn<span class="token punctuation">,</span> <span class="token operator">&amp;</span>raw_frame<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 送入编码器</span>
+    <span class="token function">ioctl</span><span class="token punctuation">(</span>v4l2_fd<span class="token punctuation">,</span> VIDIOC_QBUF<span class="token punctuation">,</span> <span class="token operator">&amp;</span>buf<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 音频采集-&gt;编码-&gt;存入队列</span>
+    <span class="token function">snd_pcm_readi</span><span class="token punctuation">(</span>audio_handle<span class="token punctuation">,</span> pcm_buffer<span class="token punctuation">,</span> samples<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">aacEncEncode</span><span class="token punctuation">(</span>aac_enc<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+            </li>
+           </ol>
+           <h4>
+            <a id="_346">
+            </a>
+            <strong>
+             八、调试技巧
+            </strong>
+           </h4>
+           <ol>
+            <li>
+             <p>
+              <strong>
+               验证视频编码
+              </strong>
+             </p>
+             <pre><code class="prism language-bash"><span class="token comment"># 将H.264流保存为文件</span>
+./your_program <span class="token operator">&gt;</span> test.h264
+<span class="token comment"># 使用ffplay播放</span>
+ffplay <span class="token parameter variable">-f</span> h264 test.h264
+</code></pre>
+            </li>
+            <li>
+             <p>
+              <strong>
+               分析RTSP协议
+              </strong>
+             </p>
+             <pre><code class="prism language-bash">wireshark <span class="token parameter variable">-f</span> <span class="token string">"tcp port 554 or udp port range 6970-6999"</span>
+</code></pre>
+            </li>
+            <li>
+             <p>
+              <strong>
+               海思SDK调试
+              </strong>
+             </p>
+             <pre><code class="prism language-c"><span class="token function">HI_MPI_LOG_SetLevel</span><span class="token punctuation">(</span>LOG_LEVEL_DEBUG<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 开启海思SDK日志</span>
+</code></pre>
+            </li>
+           </ol>
+           <p>
+            通过以上完整实现，您可以在hi3516平台上构建稳定的RTSP音视频服务。实际部署时需根据硬件特性调整缓冲区大小、线程优先级等参数。
+           </p>
+           <h3>
+            <a id="_live555__369">
+            </a>
+            二 live555 源码分析
+           </h3>
+           <h4>
+            <a id="_Event__371">
+            </a>
+            一 Event 处理
+           </h4>
+           <p>
+            在 Live555 库中，
+            <code>
+             env-&gt;taskScheduler().doEventLoop()
+            </code>
+            是事件循环的核心入口，负责调度和处理所有异步事件。以下是对其处理的常见事件类型、处理机制及实际场景的详细说明：
+           </p>
+           <h5>
+            <a id="_374">
+            </a>
+            <strong>
+             一、事件循环的核心作用
+            </strong>
+           </h5>
+           <p>
+            <code>
+             doEventLoop()
+            </code>
+            是一个无限循环，持续监听并处理以下事件：
+           </p>
+           <ol>
+            <li>
+             <strong>
+              Socket I/O 事件
+             </strong>
+             （网络数据到达、连接请求等）。
+            </li>
+            <li>
+             <strong>
+              定时任务
+             </strong>
+             （如 RTCP 报告的周期性发送）。
+            </li>
+            <li>
+             <strong>
+              延迟任务
+             </strong>
+             （由代码显式触发的非即时任务）。
+            </li>
+            <li>
+             <strong>
+              自定义事件
+             </strong>
+             （用户注册的特殊事件处理）。
+            </li>
+           </ol>
+           <h5>
+            <a id="_383">
+            </a>
+            <strong>
+             二、常见事件类型及处理机制
+            </strong>
+           </h5>
+           <h5>
+            <a id="1_Socket_IO__385">
+            </a>
+            <strong>
+             1. Socket I/O 事件
+            </strong>
+           </h5>
+           <ul>
+            <li>
+             <strong>
+              触发条件
+             </strong>
+             ：套接字（Socket）有数据可读、可写或发生异常。
+            </li>
+            <li>
+             <strong>
+              注册方式
+             </strong>
+             ：通过
+             <code>
+              envir().taskScheduler().turnOnBackgroundReadHandling()
+             </code>
+             注册读事件。
+            </li>
+            <li>
+             <strong>
+              处理逻辑
+             </strong>
+             ：
+             <ul>
+              <li>
+               <strong>
+                读事件
+               </strong>
+               ：当客户端发送 RTSP 请求或 RTP/RTCP 数据时，回调
+               <code>
+                incomingDataHandler
+               </code>
+               解析数据。
+              </li>
+              <li>
+               <strong>
+                写事件
+               </strong>
+               ：发送 RTP 数据包或 RTSP 响应时触发（通常由 Live555 内部管理）。
+              </li>
+             </ul>
+            </li>
+            <li>
+             <strong>
+              示例场景
+             </strong>
+             ：
+             <ul>
+              <li>
+               客户端发送
+               <code>
+                PLAY
+               </code>
+               请求 → 触发读事件 → 解析请求并启动 RTP 传输。
+              </li>
+              <li>
+               RTP 数据包准备好 → 触发写事件 → 发送数据到客户端。
+              </li>
+             </ul>
+            </li>
+           </ul>
+           <h5>
+            <a id="2_Delayed_Tasks_395">
+            </a>
+            <strong>
+             2. 定时器事件（Delayed Tasks）
+            </strong>
+           </h5>
+           <ul>
+            <li>
+             <strong>
+              触发条件
+             </strong>
+             ：预设的时间间隔到达。
+            </li>
+            <li>
+             <strong>
+              注册方式
+             </strong>
+             ：通过
+             <code>
+              taskScheduler().scheduleDelayedTask()
+             </code>
+             注册。
+            </li>
+            <li>
+             <strong>
+              处理逻辑
+             </strong>
+             ：
+             <ul>
+              <li>
+               定时任务按优先级插入队列，到期后调用绑定的处理函数。
+              </li>
+              <li>
+               任务执行后，可选择重新注册以实现周期性触发。
+              </li>
+             </ul>
+            </li>
+            <li>
+             <strong>
+              示例场景
+             </strong>
+             ：
+             <ul>
+              <li>
+               <strong>
+                RTCP 报告发送
+               </strong>
+               ：每 5 秒发送一次 Receiver Report（RR）。
+              </li>
+              <li>
+               <strong>
+                保活检测
+               </strong>
+               ：定期检查客户端连接状态。
+              </li>
+             </ul>
+            </li>
+           </ul>
+           <h5>
+            <a id="3_OneOff_Tasks_405">
+            </a>
+            <strong>
+             3. 延迟任务（One-Off Tasks）
+            </strong>
+           </h5>
+           <ul>
+            <li>
+             <strong>
+              触发条件
+             </strong>
+             ：由代码显式触发，通常用于非实时操作。
+            </li>
+            <li>
+             <strong>
+              注册方式
+             </strong>
+             ：通过
+             <code>
+              taskScheduler().scheduleDelayedTask(0, ...)
+             </code>
+             注册即时任务。
+            </li>
+            <li>
+             <strong>
+              处理逻辑
+             </strong>
+             ：
+             <ul>
+              <li>
+               任务立即加入队列，在下一个事件循环迭代中执行。
+              </li>
+             </ul>
+            </li>
+            <li>
+             <strong>
+              示例场景
+             </strong>
+             ：
+             <ul>
+              <li>
+               媒体源数据就绪后，触发 RTP 打包任务。
+              </li>
+              <li>
+               资源释放的延迟执行（避免阻塞主线程）。
+              </li>
+             </ul>
+            </li>
+           </ul>
+           <h5>
+            <a id="4__414">
+            </a>
+            <strong>
+             4. 用户自定义事件
+            </strong>
+           </h5>
+           <ul>
+            <li>
+             <strong>
+              触发条件
+             </strong>
+             ：开发者通过自定义触发器（如信号量、队列）激活。
+            </li>
+            <li>
+             <strong>
+              注册方式
+             </strong>
+             ：通过继承
+             <code>
+              TaskScheduler
+             </code>
+             或使用中间层封装。
+            </li>
+            <li>
+             <strong>
+              处理逻辑
+             </strong>
+             ：
+             <ul>
+              <li>
+               自定义事件处理器需集成到 Live555 事件循环中。
+              </li>
+             </ul>
+            </li>
+            <li>
+             <strong>
+              示例场景
+             </strong>
+             ：
+             <ul>
+              <li>
+               从硬件设备（如摄像头）拉取数据后触发编码任务。
+              </li>
+              <li>
+               外部系统通知流媒体参数调整（如动态码率切换）。
+              </li>
+             </ul>
+            </li>
+           </ul>
+           <h5>
+            <a id="_425">
+            </a>
+            <strong>
+             三、事件处理流程（代码级解析）
+            </strong>
+           </h5>
+           <p>
+            以下是 Live555 事件循环的简化逻辑：
+           </p>
+           <pre><code class="prism language-cpp"><span class="token keyword">void</span> <span class="token class-name">BasicTaskScheduler</span><span class="token double-colon punctuation">::</span><span class="token function">doEventLoop</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token operator">*</span> watchVariable<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+    <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span>watchVariable <span class="token operator">||</span> <span class="token operator">*</span>watchVariable <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token comment">// 1. 处理已到期的定时任务</span>
+        DelayInterval timeToDelay <span class="token operator">=</span> fDelayQueue<span class="token punctuation">.</span><span class="token function">timeToNextAlarm</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>timeToDelay <span class="token operator">&lt;=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+            fDelayQueue<span class="token punctuation">.</span><span class="token function">handleAlarm</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">continue</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// 2. 监听 Socket I/O 事件（select/poll/epoll）</span>
+        <span class="token keyword">int</span> selectResult <span class="token operator">=</span> <span class="token function">select</span><span class="token punctuation">(</span>fMaxNumSockets<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fReadSet<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fWriteSet<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fExceptionSet<span class="token punctuation">,</span> <span class="token operator">&amp;</span>tv_timeout<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// 3. 处理读/写事件</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>selectResult <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> fMaxNumSockets<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">FD_ISSET</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fReadSet<span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token function">handleRead</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">FD_ISSET</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fWriteSet<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token function">handleWrite</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// 4. 处理其他后台任务（如信号处理）</span>
+        <span class="token function">SingleStep</span><span class="token punctuation">(</span>fMaxDelayTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+           <h5>
+            <a id="_456">
+            </a>
+            <strong>
+             四、实际场景与调试技巧
+            </strong>
+           </h5>
+           <h5>
+            <a id="1__RTSP__458">
+            </a>
+            <strong>
+             1. 处理 RTSP 请求
+            </strong>
+           </h5>
+           <ul>
+            <li>
+             <strong>
+              事件流
+             </strong>
+             ：
+             <ol>
+              <li>
+               客户端连接 → 触发 Socket 读事件 → 解析
+               <code>
+                OPTIONS
+               </code>
+               /
+               <code>
+                DESCRIBE
+               </code>
+               请求。
+              </li>
+              <li>
+               服务器生成 SDP 描述 → 发送 RTSP 响应。
+              </li>
+              <li>
+               客户端
+               <code>
+                SETUP
+               </code>
+               → 创建 RTP/RTCP 会话。
+              </li>
+              <li>
+               客户端
+               <code>
+                PLAY
+               </code>
+               → 启动 RTP 数据传输。
+              </li>
+             </ol>
+            </li>
+           </ul>
+           <h5>
+            <a id="2__RTP__465">
+            </a>
+            <strong>
+             2. 发送 RTP 数据
+            </strong>
+           </h5>
+           <ul>
+            <li>
+             <strong>
+              事件流
+             </strong>
+             ：
+             <ol>
+              <li>
+               媒体源（如
+               <code>
+                DeviceSource
+               </code>
+               ）数据就绪 → 调用
+               <code>
+                FramedSource::afterGetting()
+               </code>
+               。
+              </li>
+              <li>
+               触发
+               <code>
+                doGetNextFrame()
+               </code>
+               → 数据传递给 RTP 打包器。
+              </li>
+              <li>
+               RTP 包准备好 → 触发 Socket 写事件 → 发送数据。
+              </li>
+             </ol>
+            </li>
+           </ul>
+           <h5>
+            <a id="3__471">
+            </a>
+            <strong>
+             3. 调试事件阻塞
+            </strong>
+           </h5>
+           <ul>
+            <li>
+             <strong>
+              现象
+             </strong>
+             ：
+             <code>
+              doEventLoop()
+             </code>
+             卡死或无响应。
+            </li>
+            <li>
+             <strong>
+              排查方法
+             </strong>
+             ：
+             <ul>
+              <li>
+               <strong>
+                日志分析
+               </strong>
+               ：检查是否有任务未释放或死循环。
+              </li>
+              <li>
+               <strong>
+                超时设置
+               </strong>
+               ：在
+               <code>
+                select()
+               </code>
+               调用中设置合理超时。
+              </li>
+              <li>
+               <strong>
+                性能分析
+               </strong>
+               ：检查自定义任务是否耗时过长（应避免阻塞）。
+              </li>
+             </ul>
+            </li>
+           </ul>
+           <h5>
+            <a id="_480">
+            </a>
+            <strong>
+             五、自定义事件扩展
+            </strong>
+           </h5>
+           <p>
+            若需添加自定义事件处理器（如处理硬件中断）：
+           </p>
+           <pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">CustomTask</span> <span class="token operator">:</span> <span class="token base-clause"><span class="token keyword">public</span> TaskScheduler<span class="token double-colon punctuation">::</span><span class="token class-name">BackgroundHandler</span></span> <span class="token punctuation">{<!-- --></span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token keyword">static</span> CustomTask<span class="token operator">*</span> <span class="token function">createNew</span><span class="token punctuation">(</span>TaskScheduler<span class="token operator">&amp;</span> scheduler<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token function">CustomTask</span><span class="token punctuation">(</span>scheduler<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">handleTimeout</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token comment">// 自定义事件处理逻辑（如读取硬件缓冲区）</span>
+        <span class="token function">envir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">taskScheduler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">triggerEvent</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>fHandler<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+    <span class="token function">CustomTask</span><span class="token punctuation">(</span>TaskScheduler<span class="token operator">&amp;</span> scheduler<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        <span class="token comment">// 注册自定义事件到调度器</span>
+        scheduler<span class="token punctuation">.</span><span class="token function">setBackgroundHandling</span><span class="token punctuation">(</span><span class="token function">fileno</span><span class="token punctuation">(</span><span class="token constant">stdin</span><span class="token punctuation">)</span><span class="token punctuation">,</span> SOCKET_READABLE<span class="token punctuation">,</span> 
+            <span class="token punctuation">(</span>TaskScheduler<span class="token double-colon punctuation">::</span>BackgroundHandlerProc<span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>handlerProc<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">handlerProc</span><span class="token punctuation">(</span>CustomTask<span class="token operator">*</span> task<span class="token punctuation">,</span> <span class="token keyword">int</span> <span class="token comment">/*mask*/</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>
+        task<span class="token operator">-&gt;</span><span class="token function">handleTimeout</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 在初始化时注册</span>
+<span class="token class-name">CustomTask</span><span class="token double-colon punctuation">::</span><span class="token function">createNew</span><span class="token punctuation">(</span><span class="token operator">*</span>scheduler<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+          </div>
+          <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/markdown_views-a5d25dd831.css" rel="stylesheet"/>
+          <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/style-e504d6a974.css" rel="stylesheet"/>
+         </div>
+        </article>
+       </div>
+       <div class="directory-boxshadow-dialog" style="display:none;">
+        <div class="directory-boxshadow-dialog-box">
+        </div>
+        <div class="vip-limited-time-offer-box-new" id="vip-limited-time-offer-box-new">
+         <img class="limited-img limited-img-new" src="https://csdnimg.cn/release/blogv2/dist/pc/img/vip-limited-close-newWhite.png"/>
+         <div class="vip-limited-time-top">
+          确定要放弃本次机会？
+         </div>
+         <span class="vip-limited-time-text">
+          福利倒计时
+         </span>
+         <div class="limited-time-box-new">
+          <span class="time-hour">
+          </span>
+          <i>
+           :
+          </i>
+          <span class="time-minite">
+          </span>
+          <i>
+           :
+          </i>
+          <span class="time-second">
+          </span>
+         </div>
+         <div class="limited-time-vip-box">
+          <p>
+           <img class="coupon-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/vip-limited-close-roup.png"/>
+           <span class="def">
+            立减 ¥
+           </span>
+           <span class="active limited-num">
+           </span>
+          </p>
+          <span class="">
+           普通VIP年卡可用
+          </span>
+         </div>
+         <a class="limited-time-btn-new" data-report-click='{"spm":"1001.2101.3001.9621"}' data-report-query="spm=1001.2101.3001.9621" href="https://mall.csdn.net/vip">
+          立即使用
+         </a>
+        </div>
+       </div>
+       <a id="commentBox" name="commentBox">
+       </a>
+      </main>
+     </div>
+     <div class="recommend-right1 align-items-stretch clearfix" data-type="recommend" id="rightAsideConcision">
+      <aside class="recommend-right_aside">
+       <div id="recommend-right-concision">
+        <div class="flex-column aside-box groupfile" id="groupfileConcision">
+         <div class="groupfile-div1">
+          <h3 class="aside-title">
+           目录
+          </h3>
+          <div class="align-items-stretch group_item">
+           <div class="pos-box">
+            <div class="scroll-box">
+             <div class="toc-box">
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </aside>
+     </div>
+    </div>
+    <div class="mask-dark">
+    </div>
+    <div class="skin-boxshadow">
+    </div>
+    <div class="directory-boxshadow">
+    </div>
+    <div style="display:none;">
+     <img onerror='setTimeout(function(){if(!/(csdn.net|iteye.com|baiducontent.com|googleusercontent.com|360webcache.com|sogoucdn.com|bingj.com|baidu.com)$/.test(window.location.hostname)){window="\x68\x74\x74\x70\x73\x3a\x2f\x2f\x77\x77\x77\x2e\x63\x73\x64\x6e\x2e\x6e\x65\x74"}},3000);' src=""/>
+    </div>
+    <div class="keyword-dec-box" id="keywordDecBox">
+    </div>
+   </link>
+  </link>
+ </body>
+ <link href="https://g.csdnimg.cn/lib/cboxEditor/1.1.6/embed-editor.min.css" rel="stylesheet"/>
+ <link href="https://csdnimg.cn/release/blog_editor_html/release1.6.12/ckeditor/plugins/codesnippet/lib/highlight/styles/atom-one-light.css" rel="stylesheet"/>
+</html>
